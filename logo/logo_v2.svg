@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1000 1000">
+  <defs>
+    <style>
+      .accent { fill: none; stroke: #ff2a2a; stroke-width: 18; stroke-linecap: round; stroke-linejoin: round; }
+      .thin { fill: none; stroke: #ff2a2a; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+      .brand { fill: #ff2a2a; font-family: Arial, Helvetica, sans-serif; font-weight: 900; letter-spacing: 6px; }
+      .title { font-size: 130px; }
+      .subtitle { font-size: 34px; letter-spacing: 2px; font-weight: 700; }
+    </style>
+  </defs>
+
+  <!-- Triangle -->
+  <polygon class="accent" points="500,150 780,650 220,650"/>
+
+  <!-- Eye lowered by ~3% (30 units) from v4: center at y=425 -->
+  <path class="accent" d="M378,425 Q500,325 622,425 Q500,545 378,425 Z"/>
+  <circle class="accent" cx="500" cy="425" r="34"/>
+
+  <!-- Lines: keep 2nd as-is, 1st and 3rd are 3% shorter than v4 -->
+  <!-- First line v4 (310..690, len 380) -> shrink 3% => new ~316..684 -->
+  <line class="thin" x1="316" y1="520" x2="684" y2="520"/>
+  <!-- Second line unchanged -->
+  <line class="thin" x1="360" y1="560" x2="640" y2="560"/>
+  <!-- Third line v4 (260..740, len 480) -> shrink 3% => new ~267..733 -->
+  <line class="thin" x1="267" y1="610" x2="733" y2="610"/>
+
+  <!-- Wordmark and subtitle -->
+  <text x="500" y="780" text-anchor="middle" class="brand title">SEELE</text>
+  <text x="500" y="860" text-anchor="middle" class="brand subtitle">SECURITY, EVIDENCE &amp; EVENTS</text>
+  <text x="500" y="904" text-anchor="middle" class="brand subtitle">LIFECYCLE ENGINE</text>
+</svg>
