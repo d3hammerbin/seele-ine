@@ -1,6 +1,6 @@
 // API utilities and HTTP client
 import { authUtils } from './auth';
-import { AppError, NetworkError, AuthenticationError, AuthorizationError, NotFoundError, RateLimitError } from './error';
+import { AppError, NetworkError, AuthenticationError, AuthorizationError, NotFoundError, RateLimitError, ConflictError } from './error';
 
 // API Response types
 export interface ApiResponse<T = unknown> {
@@ -127,6 +127,8 @@ class ApiClient {
 
   // Create request config
   private createRequestConfig(config: RequestConfig): RequestConfig {
+    console.log('DEBUG - createRequestConfig called with config:', config);
+    
     const mergedConfig = {
       ...this.defaultConfig,
       ...config,
@@ -136,35 +138,161 @@ class ApiClient {
       },
     };
 
+    console.log('DEBUG - mergedConfig before auth headers:', mergedConfig);
+
     // Add authentication header if not skipped
     if (!mergedConfig.skipAuth) {
       const authHeaders = authUtils.createAuthHeader();
+      console.log('DEBUG - authHeaders from createAuthHeader:', authHeaders);
+      console.log('DEBUG - authHeaders type:', typeof authHeaders);
+      console.log('DEBUG - authHeaders stringified:', JSON.stringify(authHeaders));
+      
       mergedConfig.headers = {
         ...mergedConfig.headers,
         ...authHeaders,
       };
+      
+      console.log('DEBUG - mergedConfig.headers after adding auth:', mergedConfig.headers);
     }
 
+    console.log('DEBUG - final mergedConfig:', mergedConfig);
     return mergedConfig;
   }
 
   // Handle response errors
   private async handleResponseError(response: Response): Promise<never> {
-    let errorData: Record<string, unknown>;
+    console.log('=== HandleResponseError Entry ===');
+    console.log('Response status:', response.status);
+    console.log('Response statusText:', response.statusText);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    
+    let errorData: any = {};
+    let responseText = '';
     
     try {
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        errorData = await response.json();
-      } else {
-        errorData = { message: await response.text() };
+      // Clone response to avoid consuming the body multiple times
+      const responseClone = response.clone();
+      responseText = await responseClone.text();
+      console.log('Raw response text:', responseText);
+      
+      if (responseText) {
+        try {
+          errorData = JSON.parse(responseText);
+          console.log('Parsed errorData:', errorData);
+        } catch (parseError) {
+          console.log('Failed to parse JSON, using text as error:', parseError);
+          errorData = { message: responseText };
+        }
       }
-    } catch {
-      errorData = { message: response.statusText || 'Unknown error' };
+    } catch (error) {
+      console.log('Error reading response:', error);
+      errorData = { message: response.statusText || 'Request failed' };
+    }
+    
+    console.log('=== About to extract message ===');
+    console.log('errorData before message extraction:', JSON.stringify(errorData, null, 2));
+
+    // Handle completely empty responses
+    if (!errorData || Object.keys(errorData).length === 0) {
+      errorData = { message: response.statusText || 'Request failed' };
     }
 
-    const message = String(errorData.message || errorData.error || response.statusText || 'Request failed');
-    const code = String(errorData.code || response.status.toString());
+    // Debug logging
+    console.log('handleResponseError - status:', response.status);
+    console.log('handleResponseError - errorData:', errorData);
+    console.log('handleResponseError - errorData keys:', Object.keys(errorData));
+
+    // Extract message from nested error object if present
+    let message: string;
+    
+    console.log('=== Message Extraction Debug ===');
+    console.log('errorData:', JSON.stringify(errorData, null, 2));
+    console.log('errorData.error:', errorData.error);
+    console.log('errorData.error type:', typeof errorData.error);
+    console.log('errorData.message:', errorData.message);
+    console.log('errorData.message type:', typeof errorData.message);
+    
+    // Priority 1: Check for nested error.message
+    if (errorData.error && typeof errorData.error === 'object' && (errorData.error as any).message) {
+      message = String((errorData.error as any).message);
+      console.log('Extracted from errorData.error.message:', message);
+    }
+    // Priority 2: Check for direct message string
+    else if (errorData.message && typeof errorData.message === 'string') {
+      message = errorData.message;
+      console.log('Extracted from errorData.message (string):', message);
+    }
+    // Priority 3: Check for error as string
+    else if (errorData.error && typeof errorData.error === 'string') {
+      message = errorData.error;
+      console.log('Extracted from errorData.error (string):', message);
+    }
+    // Priority 4: Handle message as object
+    else if (errorData.message && typeof errorData.message === 'object') {
+      // Try to extract meaningful info from message object
+      const msgObj = errorData.message as any;
+      if (msgObj.message) {
+        message = String(msgObj.message);
+      } else if (msgObj.error) {
+        message = String(msgObj.error);
+      } else {
+        message = JSON.stringify(errorData.message);
+      }
+      console.log('Extracted from errorData.message (object):', message);
+    }
+    // Priority 5: Handle error as object
+    else if (errorData.error && typeof errorData.error === 'object') {
+      // Try to extract meaningful info from error object
+      const errObj = errorData.error as any;
+      if (errObj.message) {
+        message = String(errObj.message);
+      } else if (errObj.detail) {
+        message = String(errObj.detail);
+      } else {
+        message = JSON.stringify(errorData.error);
+      }
+      console.log('Extracted from errorData.error (object):', message);
+    }
+    // Fallback
+    else {
+      message = response.statusText || 'Request failed';
+      console.log('Using fallback message:', message);
+    }
+
+    console.log('Message before validation:', message);
+    console.log('Message type before validation:', typeof message);
+    
+    // Ensure message is always a string and not [object Object]
+    if (!message || message === '[object Object]' || typeof message !== 'string') {
+      console.log('Message validation failed, using fallback');
+      message = 'An error occurred while processing your request';
+    }
+    
+    console.log('Final message after validation:', message);
+
+    // Clean up backend error prefixes to make messages user-friendly
+    if (message.startsWith('[BUSINESS_LOGIC_ERROR]')) {
+      message = message.replace('[BUSINESS_LOGIC_ERROR]', '').trim();
+    }
+    if (message.startsWith('[VALIDATION_ERROR]')) {
+      message = message.replace('[VALIDATION_ERROR]', '').trim();
+    }
+    if (message.startsWith('[AUTH_ERROR]')) {
+      message = message.replace('[AUTH_ERROR]', '').trim();
+    }
+
+    console.log('handleResponseError - extracted message:', message);
+    console.log('handleResponseError - message type:', typeof message);
+    console.log('handleResponseError - errorData:', JSON.stringify(errorData, null, 2));
+    console.log('handleResponseError - response status:', response.status);
+    
+    const code = String(errorData.code || (errorData.error && typeof errorData.error === 'object' && (errorData.error as any).status_code) || response.status.toString());
+
+    console.log('Extracted message:', message);
+    console.log('Message type:', typeof message);
+    console.log('Extracted code:', code);
+    console.log('Final message before switch:', message);
+    console.log('About to enter switch with status:', response.status);
 
     switch (response.status) {
       case HTTP_STATUS.UNAUTHORIZED:
@@ -173,6 +301,42 @@ class ApiClient {
         throw new AuthorizationError(message, { code, response: errorData });
       case HTTP_STATUS.NOT_FOUND:
         throw new NotFoundError(message, undefined, undefined, { code, response: errorData });
+      case HTTP_STATUS.CONFLICT:
+        console.log('=== 409 Error Debug ===');
+        console.log('Original message:', message);
+        console.log('Message type:', typeof message);
+        console.log('Is [object Object]:', message === '[object Object]');
+        console.log('errorData:', JSON.stringify(errorData, null, 2));
+        
+        // Use the already extracted and cleaned message
+        // The message should already be properly extracted from the nested error object
+        let conflictMessage = message;
+        
+        // Only use fallback if message is still problematic
+        if (!conflictMessage || conflictMessage === '[object Object]' || typeof conflictMessage !== 'string' || !conflictMessage.trim()) {
+          console.log('Message still problematic, trying alternative extraction...');
+          
+          // Try alternative extraction methods
+          if (errorData?.error?.message && typeof errorData.error.message === 'string') {
+            conflictMessage = String(errorData.error.message);
+            // Clean prefixes
+            if (conflictMessage.startsWith('[BUSINESS_LOGIC_ERROR]')) {
+              conflictMessage = conflictMessage.replace('[BUSINESS_LOGIC_ERROR]', '').trim();
+            }
+          } else if (errorData?.message && typeof errorData.message === 'string') {
+            conflictMessage = errorData.message;
+          } else if (errorData?.error && typeof errorData.error === 'string') {
+            conflictMessage = errorData.error;
+          } else if (errorData?.detail && typeof errorData.detail === 'string') {
+            conflictMessage = errorData.detail;
+          } else {
+            // Final fallback
+            conflictMessage = 'This email is already registered. Please use a different email address.';
+          }
+        }
+        
+        console.log('Final conflict message:', conflictMessage);
+        throw new ConflictError(conflictMessage, undefined, { code, response: errorData });
       case HTTP_STATUS.TOO_MANY_REQUESTS:
         throw new RateLimitError(message, undefined, { code, response: errorData });
       case HTTP_STATUS.BAD_REQUEST:

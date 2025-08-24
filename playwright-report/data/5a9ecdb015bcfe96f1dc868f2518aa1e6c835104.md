@@ -1,0 +1,76 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - button "Toggle theme" [ref=e6]:
+    - img [ref=e7]
+  - generic [ref=e9]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - img "Seele INE Logo" [ref=e14]
+        - heading "Seele INE" [level=1] [ref=e15]
+        - paragraph [ref=e16]: Procesamiento inteligente de credenciales INE
+      - generic [ref=e17]:
+        - heading "Crear cuenta" [level=2] [ref=e18]
+        - paragraph [ref=e19]: Regístrate para comenzar a procesar credenciales INE
+      - generic [ref=e20]:
+        - paragraph [ref=e22]: "[object Object]"
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e25]: Nombre
+            - generic [ref=e26]:
+              - img [ref=e28]
+              - textbox "Nombre" [ref=e30]: Test
+          - generic [ref=e31]:
+            - generic [ref=e32]: Apellido
+            - generic [ref=e33]:
+              - img [ref=e35]
+              - textbox "Apellido" [ref=e37]: User
+        - generic [ref=e38]:
+          - generic [ref=e39]: Correo electrónico
+          - generic [ref=e40]:
+            - img [ref=e42]
+            - textbox "Correo electrónico" [ref=e44]: test1756069592500@example.com
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e47]: Contraseña
+            - generic [ref=e48]:
+              - img [ref=e50]
+              - textbox "Contraseña" [ref=e52]: TestPassword123!
+              - button [ref=e54]:
+                - img [ref=e55]
+          - generic [ref=e58]:
+            - generic [ref=e59]: Confirmar contraseña
+            - generic [ref=e60]:
+              - img [ref=e62]
+              - textbox "Confirmar contraseña" [ref=e64]: TestPassword123!
+              - button [ref=e66]:
+                - img [ref=e67]
+        - generic [ref=e70]:
+          - paragraph [ref=e71]: "La contraseña debe contener:"
+          - list [ref=e72]:
+            - listitem [ref=e73]: Al menos 8 caracteres
+            - listitem [ref=e74]: Una letra mayúscula
+            - listitem [ref=e75]: Una letra minúscula
+            - listitem [ref=e76]: Un número
+            - listitem [ref=e77]: Un carácter especial (@$!%*?&)
+        - generic [ref=e78]:
+          - generic [ref=e79] [cursor=pointer]:
+            - checkbox "Acepto los términos y condiciones" [checked] [ref=e80]
+            - generic [ref=e81] [cursor=pointer]:
+              - text: Acepto los
+              - link "términos y condiciones" [ref=e82] [cursor=pointer]:
+                - /url: /terms
+          - generic [ref=e83] [cursor=pointer]:
+            - checkbox "Acepto la política de privacidad" [checked] [ref=e84]
+            - generic [ref=e85] [cursor=pointer]:
+              - text: Acepto la
+              - link "política de privacidad" [ref=e86] [cursor=pointer]:
+                - /url: /privacy
+        - button "Crear cuenta" [ref=e87]
+        - generic [ref=e92]: o
+        - paragraph [ref=e94]:
+          - text: ¿Ya tienes una cuenta?
+          - button "Inicia sesión aquí" [ref=e95]
+    - paragraph [ref=e97]: © 2024 Seele INE. Todos los derechos reservados.
+```

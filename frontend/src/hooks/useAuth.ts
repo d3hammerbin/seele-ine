@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { authState, tokenManager, sessionManager } from '../utils/auth';
 import { api } from '../utils/api';
+import { formatErrorForUser } from '../utils/error';
 import type { UseAuthReturn } from './types';
 import type { User, RegisterData, AuthTokens } from '../types/auth';
 import type { RootState } from '../types/store';
@@ -249,7 +250,7 @@ const useAuth = (): UseAuthReturn => {
         message: `Hello ${loggedInUser.firstName}, you have successfully logged in.`,
       });
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      const errorMessage = formatErrorForUser(error);
       dispatch(authActions.setError(errorMessage));
       
       addNotification({
@@ -311,7 +312,22 @@ const useAuth = (): UseAuthReturn => {
         message: `Welcome ${newUser.firstName}! Please check your email to verify your account.`,
       });
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Registration failed';
+      // Debug logging to understand the error structure
+      console.log('Registration error caught:', error);
+      console.log('Error type:', typeof error);
+      console.log('Error constructor:', error?.constructor?.name);
+      console.log('Error stringified:', JSON.stringify(error, null, 2));
+      
+      // Check if it's an AppError instance
+      if (error && typeof error === 'object' && 'message' in error) {
+        console.log('Error message property:', (error as any).message);
+        console.log('Error message type:', typeof (error as any).message);
+      }
+      
+      const errorMessage = formatErrorForUser(error);
+      console.log('Formatted error message:', errorMessage);
+      console.log('Formatted error message type:', typeof errorMessage);
+      
       dispatch(authActions.setError(errorMessage));
       
       addNotification({

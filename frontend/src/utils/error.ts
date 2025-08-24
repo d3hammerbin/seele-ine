@@ -159,6 +159,27 @@ export class RateLimitError extends AppError {
   }
 }
 
+export class ConflictError extends AppError {
+  public readonly resource?: string;
+
+  constructor(
+    message: string = 'Resource conflict',
+    resource?: string,
+    context?: Record<string, unknown>
+  ) {
+    super(message, 'CONFLICT_ERROR', 409, true, context);
+    this.name = 'ConflictError';
+    this.resource = resource;
+  }
+
+  toJSON(): Record<string, unknown> {
+    return {
+      ...super.toJSON(),
+      resource: this.resource,
+    };
+  }
+}
+
 export class FileError extends AppError {
   public readonly fileName?: string;
   public readonly fileSize?: number;
@@ -217,6 +238,10 @@ export const isRateLimitError = (error: unknown): error is RateLimitError => {
   return error instanceof RateLimitError;
 };
 
+export const isConflictError = (error: unknown): error is ConflictError => {
+  return error instanceof ConflictError;
+};
+
 export const isFileError = (error: unknown): error is FileError => {
   return error instanceof FileError;
 };
@@ -266,9 +291,51 @@ export const parseError = (error: unknown): {
   // Handle object errors (e.g., from API responses)
   if (typeof error === 'object' && error !== null) {
     const errorObj = error as Record<string, unknown>;
+    
+    // Helper function to safely extract string from potentially nested object
+    const extractMessage = (obj: Record<string, unknown>): string => {
+      // Try direct message property
+      if (typeof obj.message === 'string' && obj.message.trim()) {
+        return obj.message;
+      }
+      
+      // Try error property
+      if (typeof obj.error === 'string' && obj.error.trim()) {
+        return obj.error;
+      }
+      
+      // Try nested error.message
+      if (typeof obj.error === 'object' && obj.error !== null) {
+        const nestedError = obj.error as Record<string, unknown>;
+        if (typeof nestedError.message === 'string' && nestedError.message.trim()) {
+          return nestedError.message;
+        }
+      }
+      
+      // Try data.message
+      if (typeof obj.data === 'object' && obj.data !== null) {
+        const dataObj = obj.data as Record<string, unknown>;
+        if (typeof dataObj.message === 'string' && dataObj.message.trim()) {
+          return dataObj.message;
+        }
+      }
+      
+      // Try response.data.message (for axios errors)
+      if (typeof obj.response === 'object' && obj.response !== null) {
+        const responseObj = obj.response as Record<string, unknown>;
+        if (typeof responseObj.data === 'object' && responseObj.data !== null) {
+          const responseData = responseObj.data as Record<string, unknown>;
+          if (typeof responseData.message === 'string' && responseData.message.trim()) {
+            return responseData.message;
+          }
+        }
+      }
+      
+      return 'An unknown error occurred';
+    };
+    
     return {
-      message: (typeof errorObj.message === 'string' ? errorObj.message : 
-                typeof errorObj.error === 'string' ? errorObj.error : 'An unknown error occurred'),
+      message: extractMessage(errorObj),
       code: (typeof errorObj.code === 'string' ? errorObj.code : 
              typeof errorObj.type === 'string' ? errorObj.type : 'UNKNOWN_ERROR'),
       statusCode: (typeof errorObj.statusCode === 'number' ? errorObj.statusCode : 
@@ -298,6 +365,13 @@ export const formatError = (error: unknown): string => {
 export const formatErrorForUser = (error: unknown): string => {
   const parsed = parseError(error);
   
+  // Debug logs for Playwright test
+  console.log('[formatErrorForUser] Original error:', error);
+  console.log('[formatErrorForUser] Parsed error:', parsed);
+  console.log('[formatErrorForUser] Parsed message:', parsed.message);
+  console.log('[formatErrorForUser] Parsed code:', parsed.code);
+  console.log('[formatErrorForUser] Parsed statusCode:', parsed.statusCode);
+  
   // Map technical errors to user-friendly messages
   const userFriendlyMessages: Record<string, string> = {
     NETWORK_ERROR: 'Unable to connect to the server. Please check your internet connection.',
@@ -307,9 +381,39 @@ export const formatErrorForUser = (error: unknown): string => {
     VALIDATION_ERROR: 'Please check your input and try again.',
     RATE_LIMIT_ERROR: 'Too many requests. Please wait a moment and try again.',
     FILE_ERROR: 'There was a problem with the file. Please check the file and try again.',
+    CONFLICT_ERROR: 'This resource already exists. Please use different information.',
   };
   
-  return userFriendlyMessages[parsed.code] || parsed.message;
+  // If we have a user-friendly message for this error code, use it
+  if (userFriendlyMessages[parsed.code]) {
+    return userFriendlyMessages[parsed.code];
+  }
+  
+  // If the message is empty or just '[object Object]', provide a fallback
+  if (!parsed.message || parsed.message === '[object Object]' || parsed.message.includes('object Object')) {
+    // Try to determine error type from status code
+    if (parsed.statusCode === 409) {
+      return 'This email is already registered. Please use a different email address.';
+    }
+    if (parsed.statusCode === 400) {
+      return 'Please check your input and try again.';
+    }
+    if (parsed.statusCode === 401) {
+      return 'Please log in to continue.';
+    }
+    if (parsed.statusCode === 403) {
+      return 'You do not have permission to perform this action.';
+    }
+    if (parsed.statusCode === 404) {
+      return 'The requested resource was not found.';
+    }
+    if (parsed.statusCode === 500) {
+      return 'An internal server error occurred. Please try again later.';
+    }
+    return 'An unexpected error occurred. Please try again.';
+  }
+  
+  return parsed.message;
 };
 
 // Error logging utilities
