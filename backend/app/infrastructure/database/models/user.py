@@ -282,13 +282,13 @@ class UserModel(BaseModel):
         
         # Convert statistics to dict
         statistics_dict = {
-            'total_credentials_processed': user.statistics.total_credentials_processed,
-            'successful_extractions': user.statistics.successful_extractions,
-            'failed_extractions': user.statistics.failed_extractions,
-            'total_api_calls': user.statistics.total_api_calls,
-            'total_cost_incurred': user.statistics.total_cost_usd,
-            'credits_used': user.statistics.credits_used,
-            'credits_remaining': user.statistics.credits_remaining
+            'total_credentials_processed': user.stats.total_credentials_processed,
+            'successful_extractions': user.stats.successful_extractions,
+            'failed_extractions': user.stats.failed_extractions,
+            'total_api_calls': user.stats.total_api_calls,
+            'total_cost_incurred': user.stats.total_cost_usd,
+            'credits_used': user.stats.credits_used,
+            'credits_remaining': user.stats.credits_remaining
         }
         
         return cls(

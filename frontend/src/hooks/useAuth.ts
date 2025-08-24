@@ -272,7 +272,16 @@ const useAuth = (): UseAuthReturn => {
       dispatch(authActions.setLoading(true));
       dispatch(authActions.clearError());
 
-      const response = await api.auth.register(userData as unknown as Record<string, unknown>);
+      // Transform firstName and lastName to full_name for backend compatibility
+      const transformedData = {
+        email: userData.email,
+        password: userData.password,
+        full_name: `${userData.firstName} ${userData.lastName}`.trim(),
+        // Remove frontend-specific fields that backend doesn't expect
+        // firstName, lastName, confirmPassword, acceptTerms are not sent to backend
+      };
+
+      const response = await api.auth.register(transformedData);
       const { user: newUser, tokens } = response.data as { user: User; tokens: AuthTokens };
       
       // Store tokens and user in local storage

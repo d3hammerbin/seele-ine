@@ -51,19 +51,31 @@ class AIProviderFactory:
                 
                 # Initialize OpenAI provider if configured
                 if self.settings.ai_providers.OPENAI_API_KEY:
-                    await self._initialize_openai()
+                    try:
+                        await self._initialize_openai()
+                    except Exception as e:
+                        logger.warning(f"Failed to initialize OpenAI provider: {e}")
                 
                 # Initialize DeepSeek provider if configured
                 if self.settings.ai_providers.DEEPSEEK_API_KEY:
-                    await self._initialize_deepseek()
+                    try:
+                        await self._initialize_deepseek()
+                    except Exception as e:
+                        logger.warning(f"Failed to initialize DeepSeek provider: {e}")
                 
                 # Initialize Gemini provider if configured
                 if self.settings.ai_providers.GEMINI_API_KEY:
-                    await self._initialize_gemini()
+                    try:
+                        await self._initialize_gemini()
+                    except Exception as e:
+                        logger.warning(f"Failed to initialize Gemini provider: {e}")
                 
                 # Initialize Claude provider if configured
                 if self.settings.ai_providers.CLAUDE_API_KEY:
-                    await self._initialize_claude()
+                    try:
+                        await self._initialize_claude()
+                    except Exception as e:
+                        logger.warning(f"Failed to initialize Claude provider: {e}")
                 
                 self._initialized = True
                 available_providers = [p.value for p in self._providers.keys()]
@@ -71,7 +83,8 @@ class AIProviderFactory:
                 
             except Exception as e:
                 logger.error(f"Failed to initialize AI providers: {e}")
-                raise
+                # Don't raise, allow server to start without AI providers
+                self._initialized = True
     
     async def _initialize_openai(self) -> None:
         """

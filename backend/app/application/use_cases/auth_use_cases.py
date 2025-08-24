@@ -68,23 +68,65 @@ class AuthenticationUseCase:
         # Generate activation token
         activation_token = secrets.token_urlsafe(32)
         
+        # Split full_name into first_name and last_name
+        name_parts = request.full_name.strip().split(' ', 1)
+        first_name = name_parts[0]
+        last_name = name_parts[1] if len(name_parts) > 1 else "Usuario"
+        
+        # Generate username from email (part before @)
+        # Replace invalid characters with underscores to match validation rules
+        username = request.email.split('@')[0]
+        # Replace dots and other non-alphanumeric characters with underscores
+        import re
+        username = re.sub(r'[^a-zA-Z0-9_]', '_', username)
+        # Ensure username is within valid length (3-50 characters)
+        if len(username) < 3:
+            username = username + "_user"
+        elif len(username) > 50:
+            username = username[:50]
+        
         # Create user entity
-        user = User.create(
-            email=request.email,
-            password_hash=password_hash,
-            first_name=request.first_name,
-            last_name=request.last_name,
-            phone=request.phone,
-            company=request.company,
-            activation_token=activation_token
-        )
+        try:
+            # Debug logging before creating user
+            print(f"DEBUG - Creating user with:")
+            print(f"  email: {request.email}")
+            print(f"  username: {username}")
+            print(f"  password_hash length: {len(password_hash) if password_hash else 0}")
+            print(f"  first_name: '{first_name}' (length: {len(first_name)})")
+            print(f"  last_name: '{last_name}' (length: {len(last_name)})")
+            print(f"  phone: {request.phone}")
+            
+            user = User(
+                email=request.email,
+                username=username,
+                password_hash=password_hash,
+                first_name=first_name,
+                last_name=last_name,
+                phone=request.phone,
+                email_verification_token=activation_token
+            )
+        except ValidationException as e:
+            # Log detailed validation errors for debugging
+            print(f"DEBUG - Validation error details: {e.details}")
+            print(f"DEBUG - User data: email={request.email}, username={username}, first_name='{first_name}', last_name='{last_name}', phone={request.phone}")
+            raise
         
         # Save user
         user = await self._user_repository.create(user)
         
         return {
-            "user_id": user.id,
-            "email": user.email,
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "full_name": user.full_name,
+                "phone": user.phone,
+                "is_active": user.is_active,
+                "is_verified": user.is_verified,
+                "is_admin": user.is_admin,
+                "created_at": user.created_at,
+                "updated_at": user.updated_at,
+                "last_login_at": user.last_login
+            },
             "activation_token": activation_token,
             "message": "User registered successfully. Please check your email for activation instructions."
         }

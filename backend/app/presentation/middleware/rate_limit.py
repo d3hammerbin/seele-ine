@@ -68,7 +68,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Configuración de límites por endpoint
         self.endpoint_limits = {
             "/api/v1/auth/login": {"requests": 50, "window": 60},  # 50 por min (aumentado para pruebas)
-            "/api/v1/auth/register": {"requests": 10, "window": 3600},  # 10 por hora
+            "/api/v1/auth/register": {"requests": 100, "window": 60},  # 100 por min (aumentado para debugging)
             "/api/v1/credentials/process": {"requests": 50, "window": 60},  # 50 por min
             "/api/v1/credentials/extract": {"requests": 30, "window": 60},  # 30 por min
         }

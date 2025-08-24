@@ -82,12 +82,7 @@ async def register_user(
 ) -> RegistrationResponse:
     """Register a new user account."""
     try:
-        result = await auth_use_case.register_user(
-            email=request.email,
-            password=request.password,
-            full_name=request.full_name,
-            phone=request.phone
-        )
+        result = await auth_use_case.register_user(request)
         
         # Send activation email in background
         if result.get("activation_token"):
@@ -115,6 +110,10 @@ async def register_user(
             detail=str(e)
         )
     except Exception as e:
+        # Log the actual error for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Registration error: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Registration failed. Please try again."
