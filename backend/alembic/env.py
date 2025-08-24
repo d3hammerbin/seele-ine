@@ -14,7 +14,7 @@ import sys
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Add the app directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'app'))
@@ -50,7 +50,18 @@ target_metadata = BaseModel.metadata
 
 def get_database_url():
     """Get database URL from environment variables or config."""
-    # Get individual components from environment variables
+    # Check if DATABASE_URL is set and use it directly
+    database_url = os.getenv('DATABASE_URL')
+    if database_url:
+        # Convert async SQLite URL to sync for Alembic
+        if 'sqlite+aiosqlite' in database_url:
+            return database_url.replace('sqlite+aiosqlite', 'sqlite')
+        # Convert async PostgreSQL URL to sync for Alembic
+        elif 'postgresql+asyncpg' in database_url:
+            return database_url.replace('postgresql+asyncpg', 'postgresql')
+        return database_url
+    
+    # Fallback to individual components from environment variables
     db_host = os.getenv('POSTGRES_HOST', 'localhost')
     db_port = os.getenv('POSTGRES_PORT', '5432')
     db_name = os.getenv('POSTGRES_DB', 'seele_ine_db')

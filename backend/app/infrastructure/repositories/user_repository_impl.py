@@ -96,11 +96,11 @@ class UserRepositoryImpl(UserRepository):
             user_model.email = user.email.lower()
             user_model.username = user.username.lower() if user.username else None
             user_model.password_hash = user.password_hash
-            user_model.phone_number = user.phone
+            user_model.phone = user.phone
             user_model.role = user.role
             user_model.status = user.status
             user_model.subscription_plan = user.subscription_plan
-            user_model.is_email_verified = user.is_email_verified
+            user_model.email_verified = user.is_email_verified
             user_model.last_login_at = user.last_login
             user_model.updated_at = datetime.utcnow()
             user_model.extra_metadata = user.metadata
@@ -333,6 +333,25 @@ class UserRepositoryImpl(UserRepository):
         except Exception as e:
             await self._session.rollback()
             raise RepositoryError(f"Failed to update last login: {str(e)}")
+    
+    async def update_last_logout(self, user_id: UUID, logout_time: datetime) -> bool:
+        """Update user's last logout timestamp."""
+        try:
+            stmt = (
+                update(UserModel)
+                .where(UserModel.id == user_id)
+                .values(
+                    last_logout_at=logout_time,
+                    updated_at=datetime.utcnow()
+                )
+            )
+            result = await self._session.execute(stmt)
+            await self._session.commit()
+            return result.rowcount > 0
+            
+        except Exception as e:
+            await self._session.rollback()
+            raise RepositoryError(f"Failed to update last logout: {str(e)}")
     
     async def verify_email(self, user_id: UUID) -> None:
         """Mark user's email as verified."""

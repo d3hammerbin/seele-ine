@@ -1,6 +1,7 @@
 // Authentication hook
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { authState, tokenManager, sessionManager } from '../utils/auth';
 import { api } from '../utils/api';
 import type { UseAuthReturn } from './types';
@@ -12,6 +13,7 @@ import { useAnalytics } from './useAnalytics';
 
 const useAuth = (): UseAuthReturn => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { addNotification } = useNotifications();
   const { track } = useAnalytics();
   
@@ -51,14 +53,20 @@ const useAuth = (): UseAuthReturn => {
         title: 'Logged Out',
         message: 'You have been successfully logged out.',
       });
+      
+      // Redirect to login page
+      navigate('/login', { replace: true });
     } catch (error: unknown) {
       // Even if server logout fails, clear local state
+      tokenManager.clearTokens();
+      authState.clearCurrentUser();
       dispatch(authActions.clearAuth());
+      navigate('/login', { replace: true });
       console.error('Logout error:', error);
     } finally {
       setLocalLoading(false);
     }
-  }, [dispatch, addNotification]);
+  }, [dispatch, addNotification, navigate]);
 
   // Initialize authentication state
   useEffect(() => {

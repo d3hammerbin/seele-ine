@@ -368,6 +368,29 @@ class AuthenticationUseCase:
             "user_id": user.id
         }
     
+    async def logout_user(self, user_id: UUID) -> Dict[str, Any]:
+        """
+        Cierra la sesión de un usuario.
+        
+        Args:
+            user_id: ID del usuario
+            
+        Returns:
+            Dict con información del logout
+        """
+        user = await self._user_repository.get_by_id(user_id)
+        if not user:
+            raise NotFoundError("User not found")
+        
+        # Actualizar fecha de último logout
+        logout_time = datetime.now(timezone.utc)
+        await self._user_repository.update_last_logout(user_id, logout_time)
+        
+        return {
+            "message": "Logged out successfully",
+            "logged_out_at": logout_time
+        }
+    
     def _validate_password_strength(self, password: str) -> None:
         """
         Validate password strength requirements.

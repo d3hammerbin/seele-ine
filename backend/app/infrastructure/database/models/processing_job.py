@@ -10,7 +10,8 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer, Float, ForeignKey, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID as PostgresUUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
+from sqlalchemy import JSON
 from sqlalchemy.orm import relationship
 
 from ..base import BaseModel
@@ -26,21 +27,21 @@ class ProcessingJobModel(BaseModel):
     
     # Foreign keys
     credential_id = Column(
-        PostgresUUID(as_uuid=True),
+        String(36),
         ForeignKey("credentials.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )
     
     user_id = Column(
-        PostgresUUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )
     
     application_id = Column(
-        PostgresUUID(as_uuid=True),
+        String(36),
         ForeignKey("applications.id", ondelete="CASCADE"),
         nullable=True,
         index=True
@@ -76,7 +77,7 @@ class ProcessingJobModel(BaseModel):
     
     # Processing configuration (stored as JSON)
     config = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )
@@ -118,27 +119,27 @@ class ProcessingJobModel(BaseModel):
     
     # Processing metrics (stored as JSON)
     metrics = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )
     
     # Processing result (stored as JSON)
     result = Column(
-        JSONB,
+        JSON,
         nullable=True
     )
     
     # Error information
     errors = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=list
     )
     
     # Processing logs (stored as JSON array)
     logs = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=list
     )
@@ -212,7 +213,7 @@ class ProcessingJobModel(BaseModel):
     
     # Additional metadata
     extra_metadata = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )

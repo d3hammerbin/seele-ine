@@ -10,7 +10,8 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer, Float, ForeignKey, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID as PostgresUUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
+from sqlalchemy import JSON
 from sqlalchemy.orm import relationship
 
 from ..base import BaseModel
@@ -26,7 +27,7 @@ class ApplicationModel(BaseModel):
     
     # Foreign key to user
     user_id = Column(
-        PostgresUUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True
@@ -75,21 +76,21 @@ class ApplicationModel(BaseModel):
     
     # API Keys (stored as JSON array)
     api_keys = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=list
     )
     
     # Application limits (stored as JSON)
     limits = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )
     
     # Usage statistics (stored as JSON)
     stats = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )
@@ -102,7 +103,7 @@ class ApplicationModel(BaseModel):
     )
     
     approved_by = Column(
-        PostgresUUID(as_uuid=True),
+        String(36),
         nullable=True
     )
     
@@ -119,7 +120,7 @@ class ApplicationModel(BaseModel):
     )
     
     suspended_by = Column(
-        PostgresUUID(as_uuid=True),
+        String(36),
         nullable=True
     )
     
@@ -150,7 +151,7 @@ class ApplicationModel(BaseModel):
     
     # Additional metadata
     extra_metadata = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )

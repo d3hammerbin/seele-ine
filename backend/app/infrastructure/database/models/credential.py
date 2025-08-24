@@ -10,7 +10,8 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer, Float, ForeignKey, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID as PostgresUUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
+from sqlalchemy import JSON
 from sqlalchemy.orm import relationship
 
 from ..base import BaseModel
@@ -26,7 +27,7 @@ class CredentialModel(BaseModel):
     
     # Foreign key to user
     user_id = Column(
-        PostgresUUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True
@@ -100,13 +101,13 @@ class CredentialModel(BaseModel):
     
     # Extracted personal information (stored as JSON)
     personal_info = Column(
-        JSONB,
+        JSON,
         nullable=True
     )
     
     # Processing metrics (stored as JSON)
     processing_metrics = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )
@@ -129,13 +130,13 @@ class CredentialModel(BaseModel):
     )
     
     error_details = Column(
-        JSONB,
+        JSON,
         nullable=True
     )
     
     # Processing logs (stored as JSON array)
     processing_logs = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=list
     )
@@ -147,7 +148,7 @@ class CredentialModel(BaseModel):
     )
     
     validation_errors = Column(
-        JSONB,
+        JSON,
         nullable=True
     )
     
@@ -160,7 +161,7 @@ class CredentialModel(BaseModel):
     
     # Additional metadata
     extra_metadata = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )

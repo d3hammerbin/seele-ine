@@ -10,7 +10,8 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer, Float, ForeignKey, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID as PostgresUUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
+from sqlalchemy import JSON
 from sqlalchemy.orm import relationship
 
 from ..base import BaseModel
@@ -26,14 +27,14 @@ class BillingModel(BaseModel):
     
     # Foreign keys
     user_id = Column(
-        PostgresUUID(as_uuid=True),
+        String(36),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )
     
     application_id = Column(
-        PostgresUUID(as_uuid=True),
+        String(36),
         ForeignKey("applications.id", ondelete="CASCADE"),
         nullable=True,
         index=True
@@ -61,21 +62,21 @@ class BillingModel(BaseModel):
     
     # Cost breakdown (stored as JSON)
     cost_breakdown = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )
     
     # Usage metrics (stored as JSON)
     usage_metrics = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )
     
     # Transactions (stored as JSON array)
     transactions = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=list
     )
@@ -177,7 +178,7 @@ class BillingModel(BaseModel):
     
     # Alerts and notifications
     alerts_sent = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=list
     )
@@ -191,7 +192,7 @@ class BillingModel(BaseModel):
     
     # Additional metadata
     extra_metadata = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )

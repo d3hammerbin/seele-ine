@@ -176,6 +176,7 @@ class User:
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None
+    last_logout: Optional[datetime] = None
     
     # Metadatos
     metadata: Dict[str, Any] = field(default_factory=dict)
@@ -346,6 +347,11 @@ class User:
         """Actualiza la fecha del último login."""
         self.last_login = datetime.utcnow()
         self.stats.last_activity = self.last_login
+        self.updated_at = datetime.utcnow()
+    
+    def update_last_logout(self) -> None:
+        """Actualiza la fecha del último logout."""
+        self.last_logout = datetime.utcnow()
         self.updated_at = datetime.utcnow()
     
     def add_api_key(self, api_key: str) -> None:

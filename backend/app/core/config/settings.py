@@ -68,10 +68,17 @@ class DatabaseSettings(BaseSettings):
         Usa SQLite para desarrollo si PostgreSQL no está disponible.
         """
         import os
-        # Usar DATABASE_URL directamente si está disponible, pero cambiar asyncpg por psycopg2
+        # Usar DATABASE_URL directamente si está disponible
         database_url = os.getenv('DATABASE_URL')
         if database_url:
-            return database_url.replace('postgresql+asyncpg://', 'postgresql+psycopg2://')
+            # Si es SQLite, convertir de aiosqlite a sqlite
+            if 'sqlite+aiosqlite://' in database_url:
+                return database_url.replace('sqlite+aiosqlite://', 'sqlite:///')
+            # Si es PostgreSQL, cambiar asyncpg por psycopg2
+            elif 'postgresql+asyncpg://' in database_url:
+                return database_url.replace('postgresql+asyncpg://', 'postgresql+psycopg2://')
+            else:
+                return database_url
         # Fallback a la construcción manual
         return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 

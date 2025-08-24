@@ -10,7 +10,8 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID as PostgresUUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
+from sqlalchemy import JSON
 from sqlalchemy.orm import relationship
 
 from ..base import BaseModel
@@ -131,6 +132,12 @@ class UserModel(BaseModel):
         index=True
     )
     
+    last_logout_at = Column(
+        DateTime,
+        nullable=True,
+        index=True
+    )
+    
     last_login_ip = Column(
         String(45),  # IPv6 compatible
         nullable=True
@@ -144,14 +151,14 @@ class UserModel(BaseModel):
     
     # User preferences (stored as JSON)
     preferences = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )
     
     # User statistics (stored as JSON)
     statistics = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )
@@ -165,7 +172,7 @@ class UserModel(BaseModel):
     
     # Additional metadata
     extra_metadata = Column(
-        JSONB,
+        JSON,
         nullable=False,
         default=dict
     )
@@ -250,6 +257,7 @@ class UserModel(BaseModel):
             created_at=self.created_at,
             updated_at=self.updated_at,
             last_login=self.last_login_at,
+            last_logout=self.last_logout_at,
             metadata=self.extra_metadata or {}
         )
     
@@ -327,6 +335,7 @@ class UserModel(BaseModel):
         self.password_reset_token = user.password_reset_token
         self.password_reset_expires = user.password_reset_expires
         self.last_login_at = user.last_login
+        self.last_logout_at = user.last_logout
         self.extra_metadata = user.metadata
         
         # Update preferences

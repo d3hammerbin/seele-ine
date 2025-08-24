@@ -269,6 +269,20 @@ class UserRepository(ABC):
         pass
     
     @abstractmethod
+    async def update_last_logout(self, user_id: UUID, logout_time: datetime) -> bool:
+        """
+        Actualiza la fecha de último logout de un usuario.
+        
+        Args:
+            user_id: ID del usuario
+            logout_time: Fecha y hora del logout
+            
+        Returns:
+            bool: True si se actualizó correctamente
+        """
+        pass
+    
+    @abstractmethod
     async def increment_login_count(self, user_id: UUID) -> bool:
         """
         Incrementa el contador de logins de un usuario.
