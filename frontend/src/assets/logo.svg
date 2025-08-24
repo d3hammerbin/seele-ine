@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="578" height="518" viewBox="211 141 578 518">
+  <defs>
+    <style>
+      .accent { fill: none; stroke: #ff2a2a; stroke-width: 18; stroke-linecap: round; stroke-linejoin: round; }
+      .thin { fill: none; stroke: #ff2a2a; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <!-- Triangle -->
+  <polygon class="accent" points="500,150 780,650 220,650"/>
+
+  <!-- Eye (v5) -->
+  <path class="accent" d="M378,425 Q500,325 622,425 Q500,545 378,425 Z"/>
+  <circle class="accent" cx="500" cy="425" r="34"/>
+
+  <!-- Lines (v5 lengths) -->
+  <line class="thin" x1="316" y1="520" x2="684" y2="520"/>
+  <line class="thin" x1="360" y1="560" x2="640" y2="560"/>
+  <line class="thin" x1="267" y1="610" x2="733" y2="610"/>
+</svg>

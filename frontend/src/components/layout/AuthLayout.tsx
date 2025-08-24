@@ -47,8 +47,12 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
             {/* Logo and branding */}
             {showLogo && (
               <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl mb-4">
-                  <span className="text-2xl font-bold text-primary-foreground">S</span>
+                <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
+                  <img 
+                    src="/src/assets/logo.svg" 
+                    alt="Seele INE Logo" 
+                    className="w-12 h-12"
+                  />
                 </div>
                 <h1 className="text-2xl font-bold text-foreground mb-2">
                   Seele INE

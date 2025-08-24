@@ -82,13 +82,16 @@
   --color-foreground: #0f172a;
   --color-border: #e2e8f0;
   --color-muted: #f8fafc;
-  --color-accent: #f1f5f9;
+  --color-muted-foreground: #64748b;
+  --color-accent: #fef2f2;
   --color-card: #ffffff;
+  --color-input: #e2e8f0;
+  --color-destructive: #ef4444;
   
   /* Ring colors */
-  --color-ring: #3b82f6;
-  --color-ring-primary: #3b82f6;
-  --color-ring-primary-500: #3b82f6;
+  --color-ring: #58a6ff;
+  --color-ring-primary: #58a6ff;
+  --color-ring-primary-500: #58a6ff;
   
   /* Gray colors for compatibility */
   --color-gray-50: #f9fafb;
@@ -101,6 +104,24 @@
   --color-gray-700: #374151;
   --color-gray-800: #1f2937;
   --color-gray-900: #111827;
+}
+
+/* Dark mode variables */
+.dark {
+  --color-background: #0d1117;
+  --color-foreground: #f0f6fc;
+  --color-border: #30363d;
+  --color-muted: #21262d;
+  --color-muted-foreground: #8b949e;
+  --color-accent: #2d1b1b;
+  --color-card: #21262d;
+  --color-input: #21262d;
+  --color-destructive: #f85149;
+  
+  /* Ring colors for dark mode */
+  --color-ring: #58a6ff;
+  --color-ring-primary: #58a6ff;
+  --color-ring-primary-500: #58a6ff;
 }
 
 @layer base {
@@ -154,24 +175,61 @@
   
   /* Button variants */
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
+    box-shadow: 0 0 0 0 var(--color-ring);
+  }
+  
+  .btn-primary:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-ring)33;
   }
   
   .btn-secondary {
-    @apply bg-secondary-100 hover:bg-secondary-200 text-secondary-900 font-medium py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-secondary-100 hover:bg-secondary-200 text-secondary-900 font-medium py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
+    box-shadow: 0 0 0 0 var(--color-ring);
+  }
+  
+  .btn-secondary:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-ring)33;
   }
   
   .btn-outline {
-    @apply border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
+    box-shadow: 0 0 0 0 var(--color-ring);
+  }
+  
+  .btn-outline:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-ring)33;
   }
   
   /* Input styles */
   .input {
-    @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500;
+    @apply block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none sm:text-sm;
+    background-color: var(--color-input);
+    border-color: var(--color-border);
+    color: var(--color-foreground);
+  }
+  
+  .input::placeholder {
+    color: var(--color-muted-foreground);
+  }
+  
+  .input:focus {
+    border-color: var(--color-ring);
+    box-shadow: 0 0 0 2px var(--color-ring)33;
+  }
+  
+  .input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
   
   .input-error {
-    @apply border-error-500 focus:ring-error-500 focus:border-error-500;
+    border-color: var(--color-destructive) !important;
+  }
+  
+  .input-error:focus {
+    border-color: var(--color-destructive) !important;
+    box-shadow: 0 0 0 2px var(--color-destructive)33 !important;
   }
   
   /* Form group */
@@ -180,7 +238,8 @@
   }
   
   .form-label {
-    @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+    @apply block text-sm font-medium;
+    color: var(--color-foreground);
   }
   
   .form-error {
