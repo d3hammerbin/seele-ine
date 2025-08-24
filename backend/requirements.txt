@@ -1,0 +1,84 @@
+# FastAPI y servidor
+fastapi>=0.116.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# Base de datos
+sqlalchemy>=2.0.0
+alembic>=1.13.0
+asyncpg>=0.29.0
+psycopg2-binary>=2.9.7
+aiosqlite>=0.19.0
+
+# Validación y serialización
+pydantic[email]>=2.5.0
+pydantic-settings>=2.1.0
+email-validator>=2.1.0
+
+# Autenticación y seguridad
+python-jose[cryptography]>=3.3.0
+PyJWT>=2.8.0
+passlib[bcrypt]>=1.7.4
+bcrypt==4.0.1
+python-multipart>=0.0.6
+
+# Cache y sesiones
+redis>=5.0.0
+aioredis>=2.0.1
+
+# Procesamiento de imágenes y OCR
+Pillow>=10.0.0
+opencv-python>=4.8.0
+pytesseract>=0.3.10
+pyzbar>=0.1.9
+numpy>=1.24.0
+
+# Proveedores de IA
+openai>=1.0.0
+anthropic>=0.8.0
+google-generativeai>=0.3.0
+
+# HTTP y requests
+httpx>=0.25.0
+aiohttp>=3.9.0
+requests>=2.31.0
+
+# Utilidades
+python-dotenv>=1.0.0
+click>=8.1.0
+rich>=13.0.0
+typer>=0.9.0
+
+# Logging y monitoreo
+loguru>=0.7.0
+prometheus-client>=0.19.0
+
+# Fechas y timezone
+pytz>=2023.3
+python-dateutil>=2.8.2
+
+# Validación de archivos
+filetype>=1.2.0
+python-magic>=0.4.27
+
+# Procesamiento asíncrono
+celery>=5.3.0
+kombu>=5.3.0
+
+# Testing (desarrollo)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+httpx>=0.25.0
+factory-boy>=3.3.0
+
+# Desarrollo
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.5.0
+pre-commit>=3.4.0
+
+# Documentación
+mkdocs>=1.5.0
+mkdocs-material>=9.4.0

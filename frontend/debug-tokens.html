@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Tokens</title>
+</head>
+<body>
+    <h1>Token Debug</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message) {
+            output.innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+        
+        log('=== TOKEN DEBUG ===');
+        
+        // Check specific token keys
+        const tokenKeys = [
+            'seele_access_token',
+            'seele_refresh_token',
+            'seele_token_expiration',
+            'seele_user_profile'
+        ];
+        
+        tokenKeys.forEach(key => {
+            const value = localStorage.getItem(key);
+            if (value) {
+                log(`${key}: ${value.substring(0, 50)}...`);
+                
+                // Try to decode JWT if it looks like one
+                if (value.includes('.')) {
+                    const parts = value.split('.');
+                    log(`  - Segments: ${parts.length}`);
+                    if (parts.length === 3) {
+                        try {
+                            const payload = JSON.parse(atob(parts[1]));
+                            log(`  - Expires: ${new Date(payload.exp * 1000)}`);
+                            log(`  - User: ${payload.sub || payload.user_id || 'N/A'}`);
+                        } catch (e) {
+                            log(`  - Error decoding: ${e.message}`);
+                        }
+                    }
+                }
+            } else {
+                log(`${key}: NOT FOUND`);
+            }
+        });
+        
+        // Check all localStorage keys
+        log('\n=== ALL STORAGE KEYS ===');
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('seele_')) {
+                const value = localStorage.getItem(key);
+                log(`${key}: ${value ? value.substring(0, 30) + '...' : 'null'}`);
+            }
+        }
+    </script>
+</body>
+</html>

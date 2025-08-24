@@ -1,0 +1,1 @@
+UPDATE users SET password_hash = '$2b$12$Ltjg2PUgHUbFkX65a3caAe5ZPQt3DduTDbM01yrSF7fNUC3FzFrmm' WHERE email = 'admin@seele.com';

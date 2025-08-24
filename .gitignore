@@ -60,7 +60,7 @@ backend/*.egg-info/
 backend/.installed.cfg
 backend/*.egg
 backend/MANIFEST
-backend/.env
+# backend/.env - No debe existir, usar .env del directorio raíz
 backend/.venv
 backend/env/
 backend/venv/

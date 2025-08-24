@@ -1,0 +1,40 @@
+-- Crear usuario administrador
+INSERT INTO users (
+    id,
+    email,
+    username,
+    password_hash,
+    first_name,
+    last_name,
+    phone,
+    role,
+    status,
+    subscription_plan,
+    email_verified,
+    two_factor_enabled,
+    login_count,
+    preferences,
+    statistics,
+    extra_metadata,
+    created_at,
+    updated_at
+) VALUES (
+    gen_random_uuid(),
+    'admin@seele.com',
+    'admin',
+    '$2b$12$LQv3c1yqBwEHxDiQsnjHNOTHHDUHpxUEeQqL/fQH.HelqG8mHswxG', -- password: Admin123!
+    'Admin',
+    'User',
+    '+1234567890',
+    'ADMIN',
+    'ACTIVE',
+    'ENTERPRISE',
+    true,
+    false,
+    0,
+    '{}',
+    '{}',
+    '{}',
+    NOW(),
+    NOW()
+);
