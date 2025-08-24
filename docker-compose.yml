@@ -155,6 +155,7 @@ services:
     environment:
       - VITE_API_URL=/api/v1
       - VITE_ENVIRONMENT=${ENVIRONMENT}
+      - DOCKER_ENV=true
       - TZ=${TIMEZONE}
     ports:
       - "${FRONTEND_PORT}:3000"
